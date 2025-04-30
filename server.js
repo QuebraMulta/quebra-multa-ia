@@ -74,7 +74,7 @@ app.post("/api/analyze", upload.single("multa_image"), async (req, res) => {
         // Enviar e-mail com o resultado
         console.log(`Tentando enviar e-mail para ${userEmail}...`);
         const mailOptions = {
-            from: `"Quebra Multa IA" <${process.env.EMAIL_USER}>`, // Remetente
+            from: `"Quebra Multa IA" <${process.env.SENDER_EMAIL}>`, // Remetente (USA O E-MAIL VERIFICADO)
             to: userEmail, // Destinatário
             subject: "Análise da sua Multa e Modelo de Recurso - Quebra Multa IA", // Assunto
             text: `Olá,\n\nSegue o resultado da análise da sua multa e o modelo de recurso gerado:\n\n--- ANÁLISE ---\nErros encontrados: ${analysisResult.errors.length > 0 ? analysisResult.errors.join(', ') : 'Nenhum erro formal evidente.'}\nDados extraídos: Placa: ${analysisResult.data.placa || 'N/A'}, Data: ${analysisResult.data.data || 'N/A'}, Hora: ${analysisResult.data.hora || 'N/A'}, Código: ${analysisResult.data.codigoInfracao || 'N/A'}, Órgão: ${analysisResult.data.orgaoAutuador || 'N/A'}\n\n--- MODELO DE RECURSO ---\n${resourceText}\n\nAtenciosamente,\nEquipe Quebra Multa IA`, // Corpo do e-mail em texto puro
