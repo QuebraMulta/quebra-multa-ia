@@ -3,6 +3,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const nodemailer = require("nodemailer"); // Importar nodemailer
+const cors = require("cors"); // Importar cors
 const analysisService = require("./analysisService");
 const resourceGenerator = require("./resourceGenerator");
 
@@ -11,6 +12,10 @@ const resourceGenerator = require("./resourceGenerator");
 
 const app = express();
 const port = process.env.PORT || 3000; // Usar a porta do Render ou 3000 localmente
+
+// Middleware para habilitar CORS (permitir requisições do seu site Next.js)
+// ATENÇÃO: Em produção, configure origens específicas por segurança!
+app.use(cors()); 
 
 // Middleware para parsear dados do formulário (necessário para pegar o e-mail)
 app.use(express.urlencoded({ extended: true }));
@@ -84,16 +89,20 @@ app.post("/api/analyze", upload.single("multa_image"), async (req, res) => {
         await transporter.sendMail(mailOptions);
         console.log(`E-mail enviado com sucesso para ${userEmail}`);
 
-        // Responder ao usuário com sucesso (pode ser uma página de sucesso)
-        res.send(`Análise concluída! O resultado e o modelo de recurso foram enviados para ${userEmail}.`);
+        // Responder ao usuário com sucesso (agora enviando o JSON para o frontend)
+        res.json({ 
+            message: `Análise concluída! O resultado também foi enviado para ${userEmail}.`,
+            analysis: analysisResult,
+            resource: resourceText
+        });
 
     } catch (error) {
         console.error("Erro no processamento /api/analyze ou envio de e-mail:", error);
         // Tenta enviar uma resposta de erro mais específica se for erro de e-mail
         if (error.code === 'EENVELOPE' || error.command === 'CONN') {
-             res.status(500).send("Erro ao processar a imagem da multa: Falha ao conectar ou enviar e-mail. Verifique as configurações de e-mail do servidor.");
+             res.status(500).json({ error: "Erro ao processar a imagem da multa: Falha ao conectar ou enviar e-mail. Verifique as configurações de e-mail do servidor." });
         } else {
-             res.status(500).send("Erro ao processar a imagem da multa.");
+             res.status(500).json({ error: "Erro ao processar a imagem da multa." });
         }
     } finally {
         // Limpar o arquivo de imagem após o processamento
