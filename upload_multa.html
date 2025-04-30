@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Multa - Quebra Multa</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+        }
+        .upload-area input[type="file"] {
+            display: none;
+        }
+        .upload-area label {
+            color: #007bff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .file-name {
+            margin-top: 15px;
+            font-style: italic;
+            color: #555;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Análise de Multa com IA</h1>
+        <p>Envie uma foto nítida da sua notificação de multa para análise. Nossa IA identificará possíveis erros para o seu recurso.</p>
+
+        <form id="upload-form" action="/api/analyze" method="post" enctype="multipart/form-data">
+            <div class="upload-area" id="upload-area">
+                <input type="file" id="file-input" name="multa_image" accept="image/*" required>
+                <label for="file-input">Clique aqui para selecionar a imagem da multa</label>
+                <div class="file-name" id="file-name">Nenhum arquivo selecionado</div>
+            </div>
+            <button type="submit" id="submit-button" disabled>Enviar para Análise</button>
+        </form>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const fileNameDisplay = document.getElementById('file-name');
+        const uploadArea = document.getElementById('upload-area');
+        const submitButton = document.getElementById('submit-button');
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = fileInput.files[0].name;
+                submitButton.disabled = false;
+            } else {
+                fileNameDisplay.textContent = 'Nenhum arquivo selecionado';
+                submitButton.disabled = true;
+            }
+        });
+
+        // Adiciona feedback visual ao arrastar arquivos (opcional)
+        uploadArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            uploadArea.style.borderColor = '#007bff';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ccc';
+        });
+
+        uploadArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            if (event.dataTransfer.files.length > 0) {
+                fileInput.files = event.dataTransfer.files;
+                fileNameDisplay.textContent = fileInput.files[0].name;
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
+
